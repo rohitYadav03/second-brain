@@ -2,8 +2,10 @@ import type { NextFunction, Request, Response } from "express";
 import type { ZodTypeAny } from "zod";
 const validate = (schemaInput : ZodTypeAny ) => {
    return (req : Request,res : Response,next : NextFunction) => {
+     console.log("s : ",schemaInput);
      
          const result = schemaInput.safeParse(req.body);
+console.log("result is : ",result);
 
          if(result.success){
             req.body = result.data;
