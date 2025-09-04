@@ -6,3 +6,36 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        Int @id @default(autoincrement())
+  username  String @unique
+  password  String
+  is_shared Boolean @default(false)
+  created_at DateTime @default(now())
+  contents Content[] // one user has many contents.
+}
+
+model Content{
+  id Int @id @default(autoincrement())
+  link String? 
+  type String 
+  user_id Int
+  created_at DateTime @default(now())
+  user User @relation(fields: [user_id], references: [id]) //belongs to one user
+  contentTags ContentTag[]
+}
+
+model Tags {
+  id Int @id @default(autoincrement())
+  title String
+  contentTags ContentTag[]
+}
+
+model ContentTag {
+  id Int @id @default(autoincrement())
+  tagId Int
+  contentId Int
+  tags Tags @relation(fields: [tagId], references: [id])
+  content Content @relation(fields: [contentId], references: [id]) 
+}

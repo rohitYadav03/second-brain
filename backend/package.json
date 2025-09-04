@@ -4,7 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-   "dev" : "npx tsc && node dist/index.js"
+     "dev": "concurrently \"npm run build:watch\" \"npm run serve\"",
+  "build": "tsc",
+  "build:watch": "tsc --watch",
+  "serve": "nodemon dist/index.js"
+
   },
   "keywords": [],
   "author": "",
@@ -12,20 +16,25 @@
   "description": "",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
+    "concurrently": "^9.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
-    "prisma": "^6.15.0"
+    "prisma": "^6.15.0",
+    "zod": "^4.1.5"
   }
 }
