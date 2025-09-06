@@ -11,29 +11,75 @@ type conentDTO = {
    link : string | null;
    user_id : number;
    createdAt : Date;
+   contentTags : string[];
 }
 
 const contentRouter = express.Router();
 
 contentRouter.post("/add",vaildJwt, validate(constentSchema),async(req : Request,res : Response) => {
 try {
-    const {link = null , type}  = req.body as contentInput;
- if(req.user){
-    const  userId = req.user.id;
-    await client.content.create({
+    console.log("REQ BODY : ",req.body);
+    
+    const {link = null , type, tags}  = req.body ;
+    console.log(`here I am : ${link}, type : ${type}, tags = ${tags}`);
+    console.log(tags);
+    
+ if(!req.user){
+   return res.status(400).json({message : "User not found"})
+ }
+  const  userId = req.user.id;
+  const contentDetails =  await client.content.create({
     data : {
         link : link,
         type : type,
         user_id : userId
     }
  })
- }
- 
-return res.status(200).json({message : "Content added"})
+
+ // now we need to itrate over the tags array
+for(const eachTag of tags){
+    // let find that each tag is unquie or not 
+
+    const uniqueTag = await client.tags.findFirst({
+        where : {
+            title : eachTag.toLowerCase()
+        }
+    })
+
+    // I am assuming that if it will be new than it will retun null or undefined
+    if(!uniqueTag){
+// create a new tag for the current tag 
+
+const newTag = await client.tags.create({
+    data : {
+        title : eachTag.toLowerCase()
+    }
+})
+// now push this detail in the contenttag tabel a new row
+
+const contentTagAdded = await client.contentTag.create({
+    data : {
+        tagId : newTag.id,
+        contentId : contentDetails.id
+    }
+})
+
+    }else{
+        await client.contentTag.create({
+            data : {
+                tagId : uniqueTag.id,
+                contentId : contentDetails.id
+            }
+        })
+    }
+}
+  return  res.status(200).json({message : "content created"})
 
 
 } catch (error) {
-    res.status(400).json({message : "somehting went wrong"})
+    console.log("error : ",error);
+    
+  return  res.status(400).json({message : "somehting went wrong"})
 }
 })
 
@@ -44,8 +90,15 @@ contentRouter.get("/",vaildJwt,async(req : Request,res: Response) => {
 
 const allContent = await client.content.findMany({
     where : {
-        user_id : loggedInUserId
+        user_id : loggedInUserId,
+    },
+include : {
+    contentTags : {
+        include : {
+            tags : true
+        }
     }
+}    
 })
 
 if(allContent.length === 0){
@@ -57,6 +110,7 @@ const contentToSend : conentDTO[]=  allContent.map(c => ({
     type : c.type,
     link : c.link,
     user_id : c.user_id,
+    contentTags : c.contentTags.map(ct => ct.tags.title ),
     createdAt : c.created_at
 }));
 

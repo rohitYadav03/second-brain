@@ -17,7 +17,8 @@ export type singInInput = z.infer<typeof signInSchema>
 
 export const constentSchema = z.object({
     link : z.string().max(200, "Link is two long , invlaid link").optional(),
-    type : z.string().nonempty("Enter the type of the content")
+    type : z.string().nonempty("Enter the type of the content"),
+    tags : z.array(z.string())
 })
 
 export type contentInput = z.infer<typeof constentSchema>

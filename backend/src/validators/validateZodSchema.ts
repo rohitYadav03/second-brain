@@ -9,6 +9,8 @@ console.log("result is : ",result);
 
          if(result.success){
             req.body = result.data;
+            console.log("Inside validate done");
+            
             next()
          }
          else {

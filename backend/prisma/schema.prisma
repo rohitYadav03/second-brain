@@ -12,6 +12,7 @@ model User {
   username  String @unique
   password  String
   is_shared Boolean @default(false)
+  link String? @unique
   created_at DateTime @default(now())
   contents Content[] // one user has many contents.
 }
@@ -22,13 +23,15 @@ model Content{
   type String 
   user_id Int
   created_at DateTime @default(now())
+
   user User @relation(fields: [user_id], references: [id]) //belongs to one user
   contentTags ContentTag[]
 }
 
 model Tags {
   id Int @id @default(autoincrement())
-  title String
+  title String @unique
+
   contentTags ContentTag[]
 }
 
@@ -36,6 +39,7 @@ model ContentTag {
   id Int @id @default(autoincrement())
   tagId Int
   contentId Int
+  
   tags Tags @relation(fields: [tagId], references: [id])
   content Content @relation(fields: [contentId], references: [id]) 
 }
